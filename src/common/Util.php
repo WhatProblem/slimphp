@@ -14,7 +14,7 @@ class Util
 
 	public function dealPic($data)
 	{
-    // http://localhost/slimphp/assets/image/films/homePopFilm/1.jpg
+    	// http://localhost/slimphp/assets/image/films/homePopFilm/1.jpg
 
 		foreach ($data as $key => $value) {
 			$posterDetail = $data[$key];

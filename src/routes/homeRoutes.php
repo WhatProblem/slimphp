@@ -65,8 +65,8 @@ $app->get('/home/homePopFilm', function ($request, $response) {
     if ($resLogin['statusCode'] == '4') {
       $resFav = Utils::showLockOrFav($this, $resLogin, 'filmfav', $res, 'film_favorite', 'film_id');
       $resLock = Utils::showLockOrFav($this, $resLogin, 'filmlock', $resFav, 'film_lock', 'film_id');
+      $res = $resLock;
     }
-    $res = $resLock;
   }
   $resp = ['msg' => 'successfully!', 'data' => ['data' => $res], 'code' => 200];
 
@@ -90,8 +90,8 @@ $app->get('/home/homePopMusic', function ($request, $response) {
     $resLogin = Utils::dealJwt($request, $jwt);
     if ($resLogin['statusCode'] == '4') {
       $resFav = Utils::showLockOrFav($this, $resLogin, 'musicfav', $res, 'music_favorite', 'music_id');
+      $res = $resFav;
     }
-    $res = $resFav;
   }
   $resp = ['msg' => 'successfully!', 'data' => ['data' => $res], 'code' => 200];
   $utils = null;
@@ -99,6 +99,7 @@ $app->get('/home/homePopMusic', function ($request, $response) {
 });
 
 $app->get('/home/homePopGame', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
   $queryParams = $request->getQueryParams();
   $game_power = $queryParams['game_power'];
   $sql = 'SELECT * FROM games WHERE game_power >= :game_power';
@@ -107,12 +108,20 @@ $app->get('/home/homePopGame', function ($request, $response) {
   $result = $sth->fetchAll();
   $utils = new Utils();
   $res = $utils->dealPic($result);
+
+  // 判断登录
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    if ($resLogin['statusCode'] == '4') {
+      $resFav = Utils::showLockOrFav($this, $resLogin, 'gamefav', $res, 'game_favorite', 'game_id');
+      $resLock = Utils::showLockOrFav($this, $resLogin, 'gamelock', $resFav, 'game_lock', 'game_id');
+      $res = $resLock;
+    }
+  }
   $resp = ['msg' => 'successfully!', 'data' => ['data' => $res], 'code' => 200];
   $utils = null;
   return $this->response->withJson($resp);
 });
-
-
 
 
 
