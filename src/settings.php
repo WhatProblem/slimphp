@@ -10,7 +10,7 @@ return [
          // Database connection settings           
         "db" => [
             "host" => "localhost",
-            "dbname" => "test",
+            "dbname" => "whatproblem",
             "user" => "root",
             "pass" => "",
             "options" => array(
