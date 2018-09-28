@@ -123,7 +123,118 @@ $app->get('/home/homePopGame', function ($request, $response) {
   return $this->response->withJson($resp);
 });
 
+$app->post('/home/popFilmLockOrFav', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
+  $bodyParams = $request->getParsedBody();
+  $film_id = isset($bodyParams['film_id']) ? $bodyParams['film_id'] : null;
+  $film_lock = isset($bodyParams['film_lock']) ? $bodyParams['film_lock'] : null;
+  $film_favorite = isset($bodyParams['film_favorite']) ? $bodyParams['film_favorite'] : null;
 
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    if ($resLogin['statusCode'] == '4') {
+      $res = Utils::doFavOrLock($resLogin, $film_id, $film_lock, $film_favorite, $this, 'film');
+      if ($res['statusCode'] = '1') {
+        $resp = ['msg' => 'successfully!', 'code' => 200];
+      } else {
+        $resp = ['msg' => 'failed', 'code' => 201];
+      }
+    }
+  } else {
+    $resp = ['msg' => '请先登录', 'code' => 511];
+  }
+  return $this->response->withJson($resp);
+});
+
+$app->post('/home/popMusicFav', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
+  $bodyParams = $request->getParsedBody();
+  $music_id = isset($bodyParams['music_id']) ? $bodyParams['music_id'] : null;
+  $music_favorite = isset($bodyParams['music_favorite']) ? $bodyParams['music_favorite'] : null;
+
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    if ($resLogin['statusCode'] == '4') {
+      $res = Utils::doFavOrLock($resLogin, $music_id, null, $music_favorite, $this, 'music');
+      if ($res['statusCode'] = '1') {
+        $resp = ['msg' => 'successfully!', 'code' => 200];
+      } else {
+        $resp = ['msg' => 'failed', 'code' => 201];
+      }
+    }
+  } else {
+    $resp = ['msg' => '请先登录', 'code' => 511];
+  }
+  return $this->response->withJson($resp);
+});
+
+$app->post('/home/gameFavOrLock', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
+  $bodyParams = $request->getParsedBody();
+  $game_id = isset($bodyParams['game_id']) ? $bodyParams['game_id'] : null;
+  $game_lock = isset($bodyParams['game_lock']) ? $bodyParams['game_lock'] : null;
+  $game_favorite = isset($bodyParams['game_favorite']) ? $bodyParams['game_favorite'] : null;
+
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    if ($resLogin['statusCode'] == '4') {
+      $res = Utils::doFavOrLock($resLogin, $game_id, $game_lock, $game_favorite, $this, 'game');
+      if ($res['statusCode'] = '1') {
+        $resp = ['msg' => 'successfully!', 'code' => 200];
+      } else {
+        $resp = ['msg' => 'failed', 'code' => 201];
+      }
+    }
+  } else {
+    $resp = ['msg' => '请先登录', 'code' => 511];
+  }
+  return $this->response->withJson($resp);
+});
+
+$app->get('/film/filmDetail', function ($request, $response) {
+  $queryParams = $request->getQueryParams();
+  $film_id = $queryParams['film_id'];
+  $sql = 'SELECT * FROM films WHERE film_id = :film_id';
+  $sth = $this->db->prepare($sql);
+  $sqlArr = array(':film_id' => $film_id);
+  $sth->execute($sqlArr);
+  $codeOne = $sth->errorCode();
+  $res = $sth->fetchAll();
+
+  $sqlScore = "SELECT CONVERT( ( SELECT AVG(film_score) FROM filmscore WHERE film_id = :film_id ), DECIMAL(20, 1) ) AS film_score";
+  $sthScore = $this->db->prepare($sqlScore);
+  $sthScore->execute($sqlArr);
+  $codeTwo = $sth->errorCode();
+  $resScore = $sthScore->fetchAll();
+
+  if ($codeOne == 00000 || $codeTwo == 00000) {
+    $res[0]['film_score'] = $resScore[0]['film_score'];
+    $resp = ['msg' => 'successfully!', 'code' => 200, 'data' => $res];
+  } else {
+    $resp = ['msg' => 'failed', 'code' => 201];
+  }
+  return $this->response->withJson($resp);
+});
+
+$app->get('/film/getFilmTalk', function ($request, $response) {
+  $queryParams = $request->getQueryParams();
+  $film_id = $queryParams['film_id'];
+  $sql = 'SELECT * FROM filmtalk WHERE film_id = :film_id';
+  $sth = $this->db->prepare($sql);
+  $sqlArr = array(':film_id' => $film_id);
+  $sth->execute($sqlArr);
+  $codeOne = $sth->errorCode();
+  $res = $sth->fetchAll();
+  $resp = ['msg' => 'successfully!', 'code' => 200, 'data' => ['data' => $res]];
+  return $this->response->withJson($resp);
+});
+
+$app->get('/home/homeDetailFilter', function ($request, $response) {
+  $queryParams = $request->getQueryParams();
+  $res = Utils::getItemSort($queryParams, $this);
+  $resp = ['msg' => 'successfully!', 'code' => 200, 'data' => ['data' => $res]];
+  return $this->response->withJson($resp);
+});
 
 
 
