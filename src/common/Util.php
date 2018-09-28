@@ -135,21 +135,22 @@ class Util
 	{
 		if (isset($query['film_score'])) {
 // $sql = 'SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date DESC LIMIT :pages_index, :pages_total';
-			$sql = 'SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date';
+			$sql = "SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date';
 			$query['film_type'] = $query['film_type'] == '0' ? '' : $query['film_type'];
+			$query['film_time'] = $query['film_time'] == '0' ? '' : $query['film_time'];
 
-			$sqlArr = array(
-				'film_score' => '%' . $query['film_score'] . '%',
-				'film_time' => '%' . $query['film_time'] . '%',
-				'film_type' => '%' . $query['film_type'] . '%',
-				'pages_index' => $query['pages_index'],
-				'pages_total' => $query['pages_total']
-			);
 			$sqlArr = array(
 				':film_score' => '%' . $query['film_score'] . '%',
 				':film_time' => '%' . $query['film_time'] . '%',
-				':film_type' => '%' . $query['film_type'] . '%'
+				':film_type' => '%' . $query['film_type'] . '%',
+				':pages_index' => (int)$query['pages_index'],
+				':pages_total' => (int)$query['pages_total']
 			);
+			// $sqlArr = array(
+			// 	':film_score' => '%' . $query['film_score'] . '%',
+			// 	':film_time' => '%' . $query['film_time'] . '%',
+			// 	':film_type' => '%' . $query['film_type'] . '%'
+			// );
 		}
 		$sth = $self->db->prepare($sql);
 		$sth->execute($sqlArr);
