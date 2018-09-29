@@ -231,57 +231,69 @@ $app->get('/film/getFilmTalk', function ($request, $response) {
 
 $app->get('/home/homeDetailFilter', function ($request, $response) {
   $queryParams = $request->getQueryParams();
-  $res = Utils::getItemSort($queryParams, $this);
+  $result = Utils::getItemSort($queryParams, $this);
+  $utils = new Utils();
+  $res = $utils->dealPic($result);
   $resp = ['msg' => 'successfully!', 'code' => 200, 'data' => ['data' => $res]];
   return $this->response->withJson($resp);
 });
 
-
-
-
-
-
-// $app->get('/', function ($request, $response) {
-//   $sql = 'SELECT * FROM user';
-//   $sth = $this->db->prepare($sql);
-//   $sth->execute();
-//   $res = $sth->fetchAll();
-//   // $uri = $request->getUri();
-//   // $res = $uri->getBaseUrl();
-//   return $this->response->withJson($res);
-//   // $urls = '../assets/image/home/ai_ke.jpg';
-//   // $img = file_get_contents($urls, true);
-//   // header('Content-type:image/jpeg;text/html; charset=utf-8');
-//   // echo $img;
-//   // exit;
-// });
-
-$app->get('/testGet', function ($request, $response) {
-  $queryParams = $request->getQueryParams();
-  $name = $queryParams['name'];
-  $age = $queryParams['age'];
-  $sql = 'SELECT * FROM user WHERE name = :name AND age = :age';
-  $sth = $this->db->prepare($sql);
-  $sth->execute(array(':name' => $name, ':age' => $age));
-  $res = $sth->fetchAll();
-  return $this->response->withJson($res);
-});
-
-$app->post('/', function ($request, $response) {
-  $sql = 'SELECT * FROM user WHERE name = :name AND age = :age';
-  $sth = $this->db->prepare($sql);
-  $sth->execute(array(':name' => '小王', ':age' => '21'));
-  $res = $sth->fetchAll();
-  return $this->response->withJson($res);
-});
-
-$app->post('/testPost', function ($request, $response) {
+$app->post('/film/doFilmTalk', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
   $bodyParams = $request->getParsedBody();
-  $name = $bodyParams['name'];
-  $age = $bodyParams['age'];
-  $sql = 'SELECT * FROM user WHERE name = :name AND age = :age';
-  $sth = $this->db->prepare($sql);
-  $sth->execute(array(':name' => $name, ':age' => $age));
-  $res = $sth->fetchAll();
-  return $this->response->withJson($res);
+  $film_id = $bodyParams['film_id'];
+  $film_talk_content = $bodyParams['film_talk_content'];
+
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    $user_id = $resLogin['decode']['data']->username;
+    $sql = 'INSERT INTO filmtalk (user_id, film_id, film_talk_content) VALUES (:user_id, :film_id, :film_talk_content)';
+    $sqlArr = [':user_id' => $user_id, ':film_id' => $film_id, ':film_talk_content' => $film_talk_content];
+    $sth = $this->db->prepare($sql);
+    $sth->execute($sqlArr);
+    $code = $sth->errorCode();
+    if ($code == 00000) {
+      $resp = ['msg' => 'successfully!', 'code' => 200];
+    } else {
+      $resp = ['msg' => 'failed', 'code' => 201];
+    }
+  } else {
+    $resp = ['msg' => '请先登录', 'code' => 511];
+  }
+  return $this->response->withJson($resp);
+});
+
+$app->post('/film/doFilmScore', function ($request, $response) {
+  $jwt = $request->getHeaderLine('Authorization');
+  $bodyParams = $request->getParsedBody();
+  $film_id = $bodyParams['film_id'];
+  $film_score = $bodyParams['film_score'];
+
+  if ($jwt != '') {
+    $resLogin = Utils::dealJwt($request, $jwt);
+    $user_id = $resLogin['decode']['data']->username;
+    $sqlSearch = 'SELECT * FROM filmscore WHERE user_id = :user_id AND film_id = :film_id';
+    $sqlSearchArr = [':user_id' => 1, ':film_id' => '12331'];
+    $sthSearch = $this->db->prepare($sqlSearch);
+    $sthSearch->execute($sqlSearchArr);
+    $resSearch = $sthSearch->fetchAll();
+    if (count($resSearch) == 0) {
+      $sql = 'INSERT INTO filmscore (user_id, film_id, film_score) VALUES (:user_id, :film_id, :film_score)';
+      $sqlArr = array(':user_id' => $user_id, ':film_id' => $film_id, ':film_score' => $film_score);
+    } else {
+      $sql = 'UPDATE filmscore SET film_score = :film_score WHERE user_id = :user_id AND film_id = :film_id';
+      $sqlArr = array(':user_id' => $user_id, ':film_id' => $film_id, ':film_score' => $film_score);
+    }
+    $sth = $this->db->prepare($sql);
+    $sth->execute($sqlArr);
+    $code = $sth->errorCode();
+    if ($code == 00000) {
+      $resp = ['msg' => 'successfully!', 'code' => 200];
+    } else {
+      $resp = ['msg' => 'failed', 'code' => 201];
+    }
+  } else {
+    $resp = ['msg'=>'请先登录!', 'code'=>511];
+  }
+  return $this->response->withJson($resp);
 });

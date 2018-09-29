@@ -134,23 +134,44 @@ class Util
 	static function getItemSort($query, $self)
 	{
 		if (isset($query['film_score'])) {
-// $sql = 'SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date DESC LIMIT :pages_index, :pages_total';
-			$sql = "SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date';
-			$query['film_type'] = $query['film_type'] == '0' ? '' : $query['film_type'];
-			$query['film_time'] = $query['film_time'] == '0' ? '' : $query['film_time'];
+			$query['film_type'] = ($query['film_type'] == '0') ? '' : $query['film_type'];
+			$query['film_time'] = ($query['film_time'] == '0') ? '' : $query['film_time'];
+			$query['film_score'] = ($query['film_score'] == '0') ? '' : $query['film_score'];
+			$indexFilm = $query['pages_index'] = (int)$query['pages_index'];
+			$totalFilm = $query['pages_total'] = (int)$query['pages_total'];
 
+			$sql = "SELECT * FROM films WHERE film_score LIKE :film_score AND film_time LIKE :film_time AND film_type LIKE :film_type ORDER BY create_date DESC LIMIT $indexFilm, $totalFilm";
 			$sqlArr = array(
 				':film_score' => '%' . $query['film_score'] . '%',
 				':film_time' => '%' . $query['film_time'] . '%',
-				':film_type' => '%' . $query['film_type'] . '%',
-				':pages_index' => (int)$query['pages_index'],
-				':pages_total' => (int)$query['pages_total']
+				':film_type' => '%' . $query['film_type'] . '%'
 			);
-			// $sqlArr = array(
-			// 	':film_score' => '%' . $query['film_score'] . '%',
-			// 	':film_time' => '%' . $query['film_time'] . '%',
-			// 	':film_type' => '%' . $query['film_type'] . '%'
-			// );
+		} else if (isset($query['music_score'])) {
+			$query['music_type'] = ($query['music_type'] == '0') ? '' : $query['music_type'];
+			$query['music_time'] = ($query['music_time'] == '0') ? '' : $query['music_time'];
+			$query['music_score'] = ($query['music_score'] == '0') ? '' : $query['music_score'];
+			$indexMusic = $query['pages_index'] = (int)$query['pages_index'];
+			$totalMusic = $query['pages_total'] = (int)$query['pages_total'];
+
+			$sql = "SELECT * FROM musics WHERE music_score LIKE :music_score AND music_time LIKE :music_time AND music_type LIKE :music_type ORDER BY create_date DESC LIMIT $indexMusic, $totalMusic";
+			$sqlArr = array(
+				':music_score' => '%' . $query['music_score'] . '%',
+				':music_time' => '%' . $query['music_time'] . '%',
+				':music_type' => '%' . $query['music_type'] . '%'
+			);
+		} else if (isset($query['game_hero_score'])) {
+			$query['game_hero_type'] = ($query['game_hero_type'] == '0') ? '' : $query['game_hero_type'];
+			$query['game_hero_degree'] = ($query['game_hero_degree'] == '0') ? '' : $query['game_hero_degree'];
+			$query['game_hero_score'] = ($query['game_hero_score'] == '0') ? '' : $query['game_hero_score'];
+			$indexGame = $query['pages_index'] = (int)$query['pages_index'];
+			$totalGame = $query['pages_total'] = (int)$query['pages_total'];
+
+			$sql = "SELECT * FROM games WHERE game_hero_score LIKE :game_hero_score AND game_hero_degree LIKE :game_hero_degree AND game_hero_type LIKE :game_hero_type ORDER BY create_date DESC LIMIT $indexGame, $totalGame";
+			$sqlArr = array(
+				':game_hero_score' => '%' . $query['game_hero_score'] . '%',
+				':game_hero_degree' => '%' . $query['game_hero_degree'] . '%',
+				':game_hero_type' => '%' . $query['game_hero_type'] . '%'
+			);
 		}
 		$sth = $self->db->prepare($sql);
 		$sth->execute($sqlArr);
