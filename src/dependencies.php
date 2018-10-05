@@ -15,3 +15,6 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+$container['Home'] = function ($container) {
+    return new \Src\App\Home($container);
+};

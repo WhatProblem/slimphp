@@ -1,6 +1,7 @@
 <?php
 // https://www.thatyou.cn/%E4%BD%BF%E7%94%A8slim-php-mysql%E6%9E%84%E5%BB%BArestful-api/
 require '../src/common/Util.php';
+require '../src/app/Home.php';
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
@@ -22,7 +23,7 @@ $settings = require '../src/settings.php';
 $app = new \Slim\App($settings);
 
 // Route and Dependencies
-require '../src/routes/homeRoutes.php';
+require '../src/routes/homeRoute.php';
 require '../src/routes/routes.php';
 require '../src/dependencies.php';
 
