@@ -52,7 +52,7 @@ class Util
 		} catch (\Firebase\JWT\ExpiredException $e) {
       // token过期
 			$resp = ['statusCode' => '2', 'msg' => $e->getMessage()];
-		} catch (Exception $e) { 
+		} catch (\Exception $e) { 
       //其他错误
 			$resp = ['statusCode' => '3', 'msg' => $e->getMessage()];
 		}
